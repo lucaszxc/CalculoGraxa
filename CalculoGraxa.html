@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Dados</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+            position: relative;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow-y: scroll; /* Adicione rolagem vertical */
+        }
+        h1 {
+            color: #1e90ff;
+            font-size: 24px;
+        }
+        form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+        }
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        input[type="button"] {
+            background-color: #1e90ff;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        input[type="button"]:hover {
+            background-color: #0070cc;
+        }
+        /* Inicialmente, oculte a seção de resultados */
+        #resultados {
+            display: none;
+            max-width: 400px;
+            margin: 20px auto;
+            border: 1px solid #ccc;
+            padding: 20px;
+            border-radius: 4px;
+        }
+        /* Posicione a imagem no canto superior esquerdo */
+        #imagemEsquerda {
+            position: absolute;
+            left: 10px;
+            top: 10px;
+            max-width: 200px;
+        }
+        /* Posicione a imagem no canto superior direito */
+        #imagemDireita {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            max-width: 200px;
+        }
+        /* Adicione um espaço em branco vertical para acomodar o rodapé */
+        #espacoRodape {
+            height: 150px; /* Altura suficiente para acomodar as imagens do rodapé */
+        }
+        /* Estilize as imagens no rodapé */
+        #rodape {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            text-align: center;
+            background-color: #f0f0f0;
+            padding: 10px 0;
+        }
+        /* Estilize as imagens no rodapé */
+        #rodape img {
+            width: 33.33%; /* Defina a largura para 33.33% para ocupar um canto ao outro */
+            margin: 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img id="imagemEsquerda" src="cropped-logolubvel-removebg-preview-300x98.png" alt="Logo no canto superior esquerdo">
+        <img id="imagemDireita" src="tres-logos-q6ubvd704frognquzijocf8skwkrk1vmls9h2j1ax4.png" alt="Logos no canto superior direito">
+
+        <h1>Registro de Dados</h1>
+        <form id="registroForm">
+            <label for="nomeCliente">Nome do cliente:</label>
+            <input type="text" id="nomeCliente" required><br>
+
+            <label for="nomeEquipamento">Nome do equipamento:</label>
+            <input type="text" id="nomeEquipamento" required><br>
+
+            <label for="tipoRolamento">Tipo de rolamento:</label>
+            <input type="text" id="tipoRolamento" required><br>
+
+            <label for="temperatura">Temperatura (em Celsius):</label>
+            <input type="number" id="temperatura" required><br>
+
+            <label for="rpm">RPM (Rotações Por Minuto):</label>
+            <input type="number" id="rpm" required><br>
+
+            <input type="button" value="Próximo" onclick="proximoCampo()">
+            <input type="button" value="Gerar Relatório" onclick="gerarRelatorio()">
+        </form>
+
+        <!-- Adicione a seção de resultados -->
+        <div id="resultados">
+            <h2>Resultados:</h2>
+            <div id="resultadosConteudo"></div>
+        </div>
+    </div>
+
+    <!-- Adicione o espaço em branco vertical -->
+    <div id="espacoRodape"></div>
+
+    <!-- Adicione o rodapé com as imagens -->
+    <div id="rodape">
+        <img src="images.png" alt="Logo 1">
+    
+    </div>
+
+    <script>
+        // Array com os IDs dos campos obrigatórios em ordem
+        const camposObrigatorios = ["nomeCliente", "nomeEquipamento", "tipoRolamento", "temperatura", "rpm"];
+        let indiceAtual = 0; // Índice atual do campo obrigatório
+
+        function proximoCampo() {
+            // Preenche o campo atualmente focado
+            const campoAtual = document.getElementById(camposObrigatorios[indiceAtual]);
+            if (campoAtual.checkValidity()) {
+                indiceAtual++;
+
+                // Se todos os campos obrigatórios foram preenchidos, calcular a graxa
+                if (indiceAtual === camposObrigatorios.length) {
+                    calcularGraxa();
+                } else {
+                    // Move o foco para o próximo campo obrigatório
+                    document.getElementById(camposObrigatorios[indiceAtual]).focus();
+                }
+            } else {
+                campoAtual.reportValidity();
+            }
+        }
+
+        function calcularGraxa() {
+            const nomeCliente = document.getElementById("nomeCliente").value;
+            const nomeEquipamento = document.getElementById("nomeEquipamento").value;
+            const tipoRolamento = document.getElementById("tipoRolamento").value;
+            const temperatura = parseFloat(document.getElementById("temperatura").value);
+            const rpm = parseInt(document.getElementById("rpm").value);
+
+            const valorCalculo = calcularValorCalculo(temperatura, rpm);
+            const tipoGraxa = calcularTipoGraxa(valorCalculo);
+
+            const resultadosConteudo = `
+                <p><strong>Informações registradas:</strong></p>
+                <p>Nome do cliente: ${nomeCliente}</p>
+                <p>Nome do equipamento: ${nomeEquipamento}</p>
+                <p>Tipo de rolamento: ${tipoRolamento}</p>
+                <p>Temperatura: ${temperatura}°C</p>
+                <p>RPM: ${rpm}</p>
+                <p>Valor de cálculo: ${valorCalculo}</p>
+                <p>Tipo de graxa recomendado: ${tipoGraxa}</p>
+            `;
+
+            // Exiba a seção de resultados
+            document.getElementById("resultados").style.display = "block";
+            document.getElementById("resultadosConteudo").innerHTML = resultadosConteudo;
+        }
+
+        function calcularValorCalculo(temperatura, rpm) {
+            // Coloque aqui sua fórmula de cálculo com base na temperatura e RPM
+            // Por exemplo, você pode usar a fórmula existente ou outra que preferir
+            return temperatura;
+        }
+
+        function calcularTipoGraxa(valor) {
+            if (valor > 750000) {
+                return "Total Multis XLT 2";
+            } else if (valor > 400000) {
+                return "Total Altis SH/ Total Nevastane XS 80";
+            } else if (valor > 250000) {
+                return "Total Nevastane HD2T/ Total Altis EM/ Total Ceran XM 100";
+            } else if (valor > 100000) {
+                return "Total Ceran XM 220/Total Multis Complex EP2";
+            } else if (valor > 60000) {
+                return "Total Ceram HRM 460/Total Multis C SHD 460/Total Nevastane XS 320";
+            } else if (valor > 30000) {
+                return "Total Ceran MS/ Total Caloris 2";
+            } else if (valor > 10) {
+                return "Total Ceran AD Plus";
+            } else {
+                return "Tipo de graxa não determinado";
+            }
+        }
+
+        // Função para gerar o relatório
+        function gerarRelatorio() {
+            // Obtenha os dados preenchidos pelo usuário
+            const nomeCliente = document.getElementById("nomeCliente").value;
+            const nomeEquipamento = document.getElementById("nomeEquipamento").value;
+            const tipoRolamento = document.getElementById("tipoRolamento").value;
+            const temperatura = parseFloat(document.getElementById("temperatura").value);
+            const rpm = parseInt(document.getElementById("rpm").value);
+            const valorCalculo = calcularValorCalculo(temperatura, rpm);
+            const tipoGraxa = calcularTipoGraxa(valorCalculo);
+
+            // Crie o conteúdo do relatório em formato de string
+            const relatorio = `
+                Relatório de Registro de Dados
+
+                Informações registradas:
+                Nome do cliente: ${nomeCliente}
+                Nome do equipamento: ${nomeEquipamento}
+                Tipo de rolamento: ${tipoRolamento}
+                Temperatura: ${temperatura}°C
+                RPM: ${rpm}
+                Valor de cálculo: ${valorCalculo}
+                Tipo de graxa recomendado: ${tipoGraxa}
+            `;
+
+            // Crie um novo documento para o relatório
+            const newWindow = window.open('', '_blank');
+            newWindow.document.open();
+            newWindow.document.write(`<pre>${relatorio}</pre>`);
+            newWindow.document.close();
+        }
+
+        // Adicione um ouvinte de eventos para a tecla Enter
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Impede o comportamento padrão de Enter (submeter o formulário)
+                proximoCampo(); // Chama a função para mover para o próximo campo
+            }
+        });
+    </script>
+</body>
+</html>
